@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notification-config
+  namespace: dev
+data:
+  SERVER_PORT: "8083"
+  ACTIVE_PROFILE: "dev"
+  EUREKA_HOST: discovery-service #discovery-service.dev.svc.cluster.local
+  EUREKA_PORT: "8761"
+  POSTGRES_HOST: host.minikube.internal
+  POSTGRES_PORT: "5432"
+  POSTGRES_DATABASE: "localdb"
+  JWKS_URI: "http://authorization-service:9000/oauth2/jwks"
+  KAFKA_SERVER_URL: "PLAINTEXT://host.minikube.internal:9092"  #PLAINTEXT://172.23.0.6:9092
+  VERIFY_EMAIL_HOST: "http://localhost:4200"
+  KAFKA_CONSUMER_GROUP_ID: topicgroupid

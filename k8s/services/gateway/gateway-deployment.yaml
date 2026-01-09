@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-deployment
+  namespace: dev
+  labels:
+    app: gateway
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - gateway
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: gateway
+          image: gateway:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          env:
+            - name: SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-config
+                  key: SERVER_PORT
+            - name: ACTIVE_PROFILE
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-config
+                  key: ACTIVE_PROFILE
+            - name: EUREKA_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-config
+                  key: EUREKA_HOST
+            - name: EUREKA_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-config
+                  key: EUREKA_PORT
+            - name: USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: gateway-secret
+                  key: USER_NAME
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gateway-secret
+                  key: PASSWORD
+          ports:
+            - containerPort: 8761

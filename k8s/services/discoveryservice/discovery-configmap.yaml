@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: discovery-config
+  namespace: dev
+data:
+  SERVER_PORT: "8761"
+  ACTIVE_PROFILE: "dev"
+  EUREKA_HOST: discovery-service #discovery-service.dev.svc.cluster.local
+  POSTGRES_HOST: host.minikube.internal
+  POSTGRES_PORT: "5432"
+  POSTGRES_DATABASE: "localdb"

@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticket-deployment
+  namespace: dev
+  labels:
+    app: ticket
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: ticket
+  template:
+    metadata:
+      labels:
+        app: ticket
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - ticket
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: ticket
+          image: ticketservice:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          env:
+            - name: SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: ticket-config
+                  key: SERVER_PORT
+            - name: ACTIVE_PROFILE
+              valueFrom:
+                configMapKeyRef:
+                  name: ticket-config
+                  key: ACTIVE_PROFILE
+            - name: EUREKA_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: ticket-config
+                  key: EUREKA_HOST
+            - name: EUREKA_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: ticket-config
+                  key: EUREKA_PORT
+            - name: USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: ticket-secret
+                  key: USER_NAME
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ticket-secret
+                  key: PASSWORD
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: ticket-config
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: ticket-config
+                  key: POSTGRES_PORT
+            - name: POSTGRES_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: ticket-config
+                  key: POSTGRES_DATABASE
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: ticket-secret
+                  key: POSTGRES_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ticket-secret
+                  key: POSTGRES_PASSWORD
+            - name: KAFKA_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ticket-config
+                  key: KAFKA_SERVER_URL
+            - name: JWKS_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: ticket-config
+                  key: JWKS_URI
+            - name: USER_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ticket-config
+                  key: USER_SERVICE_URL
+          ports:
+            - containerPort: 8082

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authorization-config
+  namespace: dev
+data:
+  SERVER_PORT: "9000"
+  ACTIVE_PROFILE: "dev"
+  EUREKA_HOST: discovery-service #discovery-service.dev.svc.cluster.local
+  EUREKA_PORT: "8761"
+  POSTGRES_HOST: host.minikube.internal
+  POSTGRES_PORT: "5432"
+  POSTGRES_DATABASE: "localdb"
+  UI_APP_URL: "http://localhost:4200" # remplace ${UI_APP_URL}

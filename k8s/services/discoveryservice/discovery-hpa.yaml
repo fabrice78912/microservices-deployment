@@ -1,0 +1,25 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: discovery-hpa           # Nom du HPA
+  namespace: dev               # Namespace où le HPA est créé (ici "dev")
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: discovery-deployment  # Le déploiement cible que le HPA va surveiller et scaler
+  minReplicas: 3               # Nombre minimum de pods que Kubernetes doit garder actifs
+  maxReplicas: 4               # Nombre maximum de pods que Kubernetes peut créer automatiquement
+  metrics:                     # Critères utilisés pour décider de scaler
+    - type: Resource           # Le premier critère est une ressource
+      resource:
+        name: cpu              # Cette ressource est le CPU (processeur)
+        target:
+          type: Utilization    # Le HPA surveille l’utilisation (en pourcentage)
+          averageUtilization: 80 # Si l’utilisation moyenne de CPU dépasse 80%, Kubernetes crée plus de pods
+    - type: Resource           # Deuxième critère également une ressource
+      resource:
+        name: memory           # Cette ressource est la mémoire (RAM)
+        target:
+          type: Utilization    # Surveille aussi l’utilisation mémoire
+          averageUtilization: 80 # Si la mémoire utilisée dépasse 80%, Kubernetes augmente aussi les pods

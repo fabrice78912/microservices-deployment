@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+  namespace: dev
+data:
+  SERVER_PORT: "8080"
+  ACTIVE_PROFILE: "dev"
+  EUREKA_HOST: discovery-service #gateway-service.dev.svc.cluster.local
+  EUREKA_PORT: "8761"

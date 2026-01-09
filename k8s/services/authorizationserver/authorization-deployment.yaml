@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authorization-deployment
+  namespace: dev
+  labels:
+    app: authorization
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: authorization
+  template:
+    metadata:
+      labels:
+        app: authorization
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - authorization
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: authorization
+          image: authorizationserver:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          env:
+            - name: SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-config
+                  key: SERVER_PORT
+            - name: ACTIVE_PROFILE
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-config
+                  key: ACTIVE_PROFILE
+            - name: EUREKA_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-config
+                  key: EUREKA_HOST
+            - name: EUREKA_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-config
+                  key: EUREKA_PORT
+            - name: USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secret
+                  key: USER_NAME
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secret
+                  key: PASSWORD
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-config
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-config
+                  key: POSTGRES_PORT
+            - name: POSTGRES_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-config
+                  key: POSTGRES_DATABASE
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secret
+                  key: POSTGRES_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secret
+                  key: POSTGRES_PASSWORD
+            - name: UI_APP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-config
+                  key: UI_APP_URL
+            - name: PRIVATE_KEY
+              value: "/app/keys/private.pem"
+            - name: PUBLIC_KEY
+              value: "/app/keys/public.pem"
+          ports:
+            - containerPort: 9000
